@@ -1,7 +1,8 @@
 from github import Github
-from textblob import TextBlob
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import csv
 import time
+import codecs
 
 
 def check_ratelimit(remaining, resettime):
@@ -12,19 +13,17 @@ def check_ratelimit(remaining, resettime):
 
 def get_repo_entries(repo):
     """Goes through repo object and records entries for all issue and pull request comments"""
-
+    analyser = SentimentIntensityAnalyzer()
     for issue in repo.get_issues(state='all'):
         check_ratelimit(int(issue.raw_headers['x-ratelimit-remaining']), float(issue.raw_headers['x-ratelimit-reset']))
         print('ratelimit remaining: ' + str(issue.raw_headers['x-ratelimit-remaining']))
         for comment in issue.get_comments():
             check_ratelimit(int(comment.raw_headers['x-ratelimit-remaining']), float(comment.raw_headers['x-ratelimit-reset']))
             print('ratelimit remaining: ' + str(comment.raw_headers['x-ratelimit-remaining']))
-
-            comment_blob = TextBlob(comment.body)
-            entry = [repo.language, repo.name, issue.number, comment.id, comment_blob.sentiment.polarity,
-                     comment_blob.sentiment.subjectivity]
+            score = analyser.polarity_scores(comment.body)
+            entry = [repo.language, repo.name, issue.number, comment.id, comment.body, score['compound']],
             print(entry)
-            with open('entries.csv', 'a', newline='') as csvfile:
+            with codecs.open('entries.csv', 'a', encoding='utf8') as csvfile:
                 writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
                 writer.writerow(entry)
 
