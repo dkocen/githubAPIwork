@@ -5,7 +5,7 @@ from textblob import TextBlob
 if __name__ == '__main__':
     g = Github('dkocen', 'n2T5%es%9s')
     repo = g.get_repo('thedaviddias/Front-End-Checklist') # Just some random test repo
-    issues = repo.get_issues()
+    issues = repo.get_issues(state='all')
     for issue in issues:
         for comment in issue.get_comments():
             comment_blob = TextBlob(comment.body)
