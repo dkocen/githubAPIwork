@@ -7,7 +7,7 @@ import codecs
 
 def check_ratelimit(remaining, resettime):
     """Checks if about to exceed ratelimit and pauses accordingly"""
-    if remaining < 2:
+    if remaining < 5:
         time.sleep(resettime - time.time())
 
 
