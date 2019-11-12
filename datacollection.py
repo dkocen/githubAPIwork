@@ -15,7 +15,7 @@ def check_ratelimit(remaining, resettime):
 def get_repo_entries(repo):
     """Goes through repo object and records entries for all issue and pull request comments"""
     # analyser = SentimentIntensityAnalyzer()
-    issues = repo.get_issues(query='is:issue')
+    issues = repo.get_issues(state='open')
     for issue in issues[:20]:
         check_ratelimit(int(issue.raw_headers['x-ratelimit-remaining']), float(issue.raw_headers['x-ratelimit-reset']))
         print('ratelimit remaining: ' + str(issue.raw_headers['x-ratelimit-remaining']))
