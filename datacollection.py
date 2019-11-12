@@ -16,11 +16,20 @@ def get_repo_entries(repo):
     """Goes through repo object and records entries for all issue and pull request comments"""
     # analyser = SentimentIntensityAnalyzer()
     issues = repo.get_issues(state='open')
-    for issue in issues[:20]:
+    # Have an if statement instead of just splicing in for loop because may not have more than 20 issues
+    if len(issues) > 20:
+        issues = issues[:20]
+
+    for issue in issues:
         check_ratelimit(int(issue.raw_headers['x-ratelimit-remaining']), float(issue.raw_headers['x-ratelimit-reset']))
         print('ratelimit remaining: ' + str(issue.raw_headers['x-ratelimit-remaining']))
+
         comments = issue.get_comments()
-        for comment in comments[:20]:
+        # Have if statement instead of splicing in for loop because may not have more than 20 comments
+        if len(comments) > 20:
+            comments = comments[:20]
+
+        for comment in comments:
             check_ratelimit(int(comment.raw_headers['x-ratelimit-remaining']), float(comment.raw_headers['x-ratelimit-reset']))
             print('ratelimit remaining: ' + str(comment.raw_headers['x-ratelimit-remaining']))
             # score = analyser.polarity_scores(comment.body)
