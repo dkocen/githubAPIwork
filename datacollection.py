@@ -17,7 +17,7 @@ def get_repo_entries(repo):
     # analyser = SentimentIntensityAnalyzer()
     issues = repo.get_issues(state='open')
     # Have an if statement instead of just splicing in for loop because may not have more than 20 issues
-    if len(issues) > 20:
+    if issues.totalCount > 20:
         issues = issues[:20]
 
     for issue in issues:
@@ -26,7 +26,7 @@ def get_repo_entries(repo):
 
         comments = issue.get_comments()
         # Have if statement instead of splicing in for loop because may not have more than 20 comments
-        if len(comments) > 20:
+        if comments.totalCount > 20:
             comments = comments[:20]
 
         for comment in comments:
@@ -43,10 +43,6 @@ def get_repo_entries(repo):
 def main():
     g = Github('dkocen', 'n2T5%es%9s')
     languages = ['python', 'javascript', 'C', 'java', 'haskell']
-
-    repo = g.get_repo('dkocen/CS3012_dev_tasks')
-    for comment in repo.get_issues_comments():
-        print(comment.body)
 
     for language in languages:
         print(language)
