@@ -8,16 +8,19 @@ import codecs
 def check_ratelimit(remaining, resettime):
     """Checks if about to exceed ratelimit and pauses accordingly"""
     if remaining < 5:
+        print(f'sleeping for {resettime-time.time()} ms')
         time.sleep(resettime - time.time())
 
 
 def get_repo_entries(repo):
     """Goes through repo object and records entries for all issue and pull request comments"""
     # analyser = SentimentIntensityAnalyzer()
-    for issue in repo.get_issues():
+    issues = repo.get_issues(query='is:issue')
+    for issue in issues[:20]:
         check_ratelimit(int(issue.raw_headers['x-ratelimit-remaining']), float(issue.raw_headers['x-ratelimit-reset']))
         print('ratelimit remaining: ' + str(issue.raw_headers['x-ratelimit-remaining']))
-        for comment in issue.get_comments():
+        comments = issue.get_comments()
+        for comment in comments[:20]:
             check_ratelimit(int(comment.raw_headers['x-ratelimit-remaining']), float(comment.raw_headers['x-ratelimit-reset']))
             print('ratelimit remaining: ' + str(comment.raw_headers['x-ratelimit-remaining']))
             # score = analyser.polarity_scores(comment.body)
@@ -31,6 +34,10 @@ def get_repo_entries(repo):
 def main():
     g = Github('dkocen', 'n2T5%es%9s')
     languages = ['python', 'javascript', 'C', 'java', 'haskell']
+
+    repo = g.get_repo('dkocen/CS3012_dev_tasks')
+    for comment in repo.get_issues_comments():
+        print(comment.body)
 
     for language in languages:
         print(language)
