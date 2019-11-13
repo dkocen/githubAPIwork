@@ -50,7 +50,7 @@ def main():
         repos = g.search_repositories(query=query)
         print(f'Found {repos.totalCount} repos')
 
-        for repo in repos[:100]:
+        for repo in repos[:200]:
             get_repo_entries(repo)
 
 
