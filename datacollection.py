@@ -17,8 +17,8 @@ def get_repo_entries(repo):
     # analyser = SentimentIntensityAnalyzer()
     issues = repo.get_issues(state='open')
     # Have an if statement instead of just splicing in for loop because may not have more than 20 issues
-    if issues.totalCount > 20:
-        issues = issues[:20]
+    if issues.totalCount > 50:
+        issues = issues[:50]
 
     for issue in issues:
         check_ratelimit(int(issue.raw_headers['x-ratelimit-remaining']), float(issue.raw_headers['x-ratelimit-reset']))
@@ -50,7 +50,7 @@ def main():
         repos = g.search_repositories(query=query)
         print(f'Found {repos.totalCount} repos')
 
-        for repo in repos[:200]:
+        for repo in repos[:500]:
             get_repo_entries(repo)
 
 
