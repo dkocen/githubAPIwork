@@ -1,5 +1,4 @@
 from github import Github
-# from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import csv
 import time
 import codecs
@@ -14,7 +13,6 @@ def check_ratelimit(remaining, resettime):
 
 def get_repo_entries(repo):
     """Goes through repo object and records entries for all issue and pull request comments"""
-    # analyser = SentimentIntensityAnalyzer()
     issues = repo.get_issues(state='open')
     # Have an if statement instead of just splicing in for loop because may not have more than 20 issues
     if issues.totalCount > 50:
@@ -32,7 +30,6 @@ def get_repo_entries(repo):
         for comment in comments:
             check_ratelimit(int(comment.raw_headers['x-ratelimit-remaining']), float(comment.raw_headers['x-ratelimit-reset']))
             print('ratelimit remaining: ' + str(comment.raw_headers['x-ratelimit-remaining']))
-            # score = analyser.polarity_scores(comment.body)
             entry = [repo.language, repo.name, issue.number, comment.id, comment.body] # , score['compound']
             print(entry)
             with codecs.open('entries.csv', 'a', encoding='utf8') as csvfile:
