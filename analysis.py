@@ -14,7 +14,7 @@ def determine_lang(string):
 def main():
     """Cleans data and runs sentiment analysis"""
     df = pd.read_csv('data_uncleaned_200repos.csv', header=None,
-                      names=['language', 'repo', 'issue_id', 'comment_id', 'comment_body'])
+                     names=['language', 'repo', 'issue_id', 'comment_id', 'comment_body'])
 
     # Removes all rows that don't have a comment in English (hopefully)
     df = df[df['comment_body'].apply(lambda x: determine_lang(x)) == 'en']
@@ -27,7 +27,7 @@ def main():
     analyser = SentimentIntensityAnalyzer()
     df['sentiment'] = [analyser.polarity_scores(str(comment))['compound'] for comment in df['comment_body']]
 
-    df.to_csv('data_cleaned_200repos_withSentiment.csv')
+    df.to_csv('data_cleaned_200repos_languaged_withSentiment.csv')
 
 
 if __name__ == '__main__':
