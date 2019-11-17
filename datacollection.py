@@ -46,8 +46,14 @@ def main():
         query = 'language:' + language
         repos = g.search_repositories(query=query)
         print(f'Found {repos.totalCount} repos')
-
         for repo in repos[:500]:
+            check_ratelimit(int(repo.raw_headers['x-ratelimit-remaining']), float(repo.raw_headers['x-ratelimit-reset']))
+            repo_info = [repo.full_name, repo.html_url, repo.created_at, repo.subscribers_count, repo.watchers]
+
+            with codecs.open('repo_info.csv', 'a', encoding='utf8') as csvfile:
+                writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
+                writer.writerow(repo_info)
+
             get_repo_entries(repo)
 
 
