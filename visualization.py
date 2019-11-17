@@ -1,16 +1,89 @@
-from bokeh.plotting import figure, output_file, show
 import pandas as pd
 
-def main():
-    raw_data = pd.read_csv('data_cleaned_200repos_withSentiment.csv')
-    repo_names = raw_data.repo.unique()
-    repo_means = raw_data.groupby('repo', as_index=False)['sentiment'].mean().sort_values(by='sentiment')
+from bokeh.layouts import row, column
+from bokeh.models import Select
+from bokeh.palettes import Spectral5
+from bokeh.plotting import curdoc, figure
 
-    p = figure(x_range=repo_means.repo, plot_width=10000)
-    p.vbar(x=repo_means.repo, top=repo_means.sentiment, width=0.9)
-    output_file('test.html')
-    show(p)
+df = pd.read_csv('data_cleaned_200repos_withSentiment.csv')
+df = df.groupby(['repo', 'language'], as_index=False)['sentiment'].mean()
+df = df.sort_values(by='sentiment')
+df['repo'] = [repo[0:30] for repo in df['repo']]
+
+SIZES = list(range(6, 22, 3))
+COLORS = Spectral5
+N_SIZES = len(SIZES)
+N_COLORS = len(COLORS)
+
+columns = sorted(df.columns)
+discrete = ['repo', 'language']
+continuous = ['sentiment']
+
+def create_figure():
+    xs = df[x.value].values
+    ys = df[y.value].values
+    x_title = x.value.title()
+    y_title = y.value.title()
+
+    kw = dict()
+    if x.value in discrete:
+        kw['x_range'] = sorted(set(xs))
+    if y.value in discrete:
+        kw['y_range'] = sorted(set(ys))
+    kw['title'] = "%s vs %s" % (x_title, y_title)
+
+    p = figure(plot_height=1000, plot_width=1000, tools='pan,box_zoom,hover,reset', **kw)
+    p.xaxis.axis_label = x_title
+    p.yaxis.axis_label = y_title
+
+    if x.value in discrete:
+        p.xaxis.major_label_orientation = pd.np.pi / 4
+
+    sz = 9
+    if size.value != 'None':
+        if len(set(df[size.value])) > N_SIZES:
+            groups = pd.qcut(df[size.value].values, N_SIZES, duplicates='drop')
+        else:
+            groups = pd.Categorical(df[size.value])
+        sz = [SIZES[xx] for xx in groups.codes]
+
+    c = "#31AADE"
+    if color.value != 'None':
+        if len(set(df[color.value])) > N_COLORS:
+            groups = pd.qcut(df[color.value].values, N_COLORS, duplicates='drop')
+        else:
+            groups = pd.Categorical(df[color.value])
+        c = [COLORS[xx] for xx in groups.codes]
+
+    if x.value in discrete and y.value in continuous:
+        p.vbar(x=xs, top=ys, width=sz, color=c)
+    elif y.value in discrete and x.value in continuous:
+        p.hbar(y=ys, right=xs, height=sz, color=c)
+    else:
+        p.circle(x=xs, y=ys, color=c, size=sz, line_color="white", alpha=0.6, hover_color='white', hover_alpha=0.5)
+
+    return p
 
 
-if __name__ == '__main__':
-    main()
+def update(attr, old, new):
+    layout.children[1] = create_figure()
+
+
+x = Select(title='X-Axis', value='sentiment', options=columns)
+x.on_change('value', update)
+
+y = Select(title='Y-Axis', value='repo', options=columns)
+y.on_change('value', update)
+
+size = Select(title='Size', value='None', options=['None'] + continuous)
+size.on_change('value', update)
+
+color = Select(title='Color', value='None', options=['None'] + continuous)
+color.on_change('value', update)
+
+controls = column(x, y, color, size, width=200)
+layout = row(controls, create_figure())
+
+curdoc().add_root(layout)
+
+
