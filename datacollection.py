@@ -28,13 +28,16 @@ def get_repo_entries(repo):
             comments = comments[:20]
 
         for comment in comments:
-            check_ratelimit(int(comment.raw_headers['x-ratelimit-remaining']), float(comment.raw_headers['x-ratelimit-reset']))
-            print('ratelimit remaining: ' + str(comment.raw_headers['x-ratelimit-remaining']))
-            entry = [repo.language, repo.name, issue.number, comment.id, comment.body] # , score['compound']
-            print(entry)
-            with codecs.open('entries.csv', 'a', encoding='utf8') as csvfile:
-                writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
-                writer.writerow(entry)
+            try:
+                check_ratelimit(int(comment.raw_headers['x-ratelimit-remaining']), float(comment.raw_headers['x-ratelimit-reset']))
+                print('ratelimit remaining: ' + str(comment.raw_headers['x-ratelimit-remaining']))
+                entry = [repo.language, repo.name, issue.number, comment.id, comment.body] # , score['compound']
+                print(entry)
+                with codecs.open('entries.csv', 'a', encoding='utf8') as csvfile:
+                    writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
+                    writer.writerow(entry)
+            except:
+                print('an error has occurred')
 
 
 def main():
@@ -46,15 +49,19 @@ def main():
         query = 'language:' + language
         repos = g.search_repositories(query=query)
         print(f'Found {repos.totalCount} repos')
-        for repo in repos[:500]:
+        for repo in repos[:200]:
             check_ratelimit(int(repo.raw_headers['x-ratelimit-remaining']), float(repo.raw_headers['x-ratelimit-reset']))
-            repo_info = [repo.full_name, repo.html_url, repo.created_at, repo.subscribers_count, repo.watchers]
 
-            with codecs.open('repo_info.csv', 'a', encoding='utf8') as csvfile:
-                writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
-                writer.writerow(repo_info)
+            try:
+                repo_info = [repo.full_name, repo.html_url, repo.created_at, repo.subscribers_count, repo.watchers]
 
-            get_repo_entries(repo)
+                with codecs.open('repo_info.csv', 'a', encoding='utf8') as csvfile:
+                    writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
+                    writer.writerow(repo_info)
+
+                get_repo_entries(repo)
+            except:
+                print('error occurred')
 
 
 if __name__ == '__main__':
