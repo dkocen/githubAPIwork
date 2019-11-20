@@ -49,7 +49,7 @@ def main():
         query = 'language:' + language
         repos = g.search_repositories(query=query)
         print(f'Found {repos.totalCount} repos')
-        for repo in repos[:200]:
+        for repo in repos[:200]
             check_ratelimit(int(repo.raw_headers['x-ratelimit-remaining']), float(repo.raw_headers['x-ratelimit-reset']))
 
             try:
