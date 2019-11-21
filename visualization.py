@@ -3,9 +3,11 @@ import pandas as pd
 from bokeh.layouts import row, column
 from bokeh.models import Select
 from bokeh.palettes import Spectral5
-from bokeh.plotting import curdoc, figure
+from bokeh.plotting import curdoc, figure, ColumnDataSource
 
 df = pd.read_csv('data_cleaned200repos_alldata.csv')
+del df['Unnamed: 0']
+del df['creation_date']
 
 df['repo'] = [repo[0:30] for repo in df['repo']]
 
@@ -14,9 +16,11 @@ COLORS = Spectral5
 N_SIZES = len(SIZES)
 N_COLORS = len(COLORS)
 
+source = ColumnDataSource(df)
+
 columns = sorted(df.columns)
 discrete = ['repo', 'language']
-continuous = ['sentiment', 'creation_date', 'subscribers', 'watchers']
+continuous = ['sentiment', 'subscribers', 'stars']
 
 def create_figure():
     xs = df[x.value].values
@@ -31,7 +35,13 @@ def create_figure():
         kw['y_range'] = sorted(set(ys))
     kw['title'] = "%s vs %s" % (x_title, y_title)
 
-    p = figure(plot_height=1000, plot_width=1000, tools='pan,box_zoom,hover,reset', **kw)
+    tooltips = [
+        ("Repo", "@repo"),
+        (x_title, "$x{0,0.00}"),
+        (y_title, "$y{0,0.00}")
+    ]
+
+    p = figure(plot_height=1000, plot_width=1000, tools='pan,box_zoom,hover,reset', tooltips=tooltips, **kw)
     p.xaxis.axis_label = x_title
     p.yaxis.axis_label = y_title
 
@@ -54,12 +64,12 @@ def create_figure():
             groups = pd.Categorical(df[color.value])
         c = [COLORS[xx] for xx in groups.codes]
 
-    if x.value in discrete and y.value in continuous:
-        p.vbar(x=xs, top=ys, width=sz, color=c)
-    elif y.value in discrete and x.value in continuous:
-        p.hbar(y=ys, right=xs, height=sz, color=c)
-    else:
-        p.circle(x=xs, y=ys, color=c, size=sz, line_color="white", alpha=0.6, hover_color='white', hover_alpha=0.5)
+    # if x.value in discrete and y.value in continuous:
+    #     p.vbar(x=xs, top=ys, width=sz, color=c)
+    # elif y.value in discrete and x.value in continuous:
+    #     p.hbar(y=ys, right=xs, height=sz, color=c)
+    # else:
+    p.circle(x=x.value, y=y.value, source=source, color=c, size=sz, line_color="white", alpha=0.6, hover_color='white', hover_alpha=0.5)
 
     return p
 
@@ -68,10 +78,10 @@ def update(attr, old, new):
     layout.children[1] = create_figure()
 
 
-x = Select(title='X-Axis', value='sentiment', options=columns)
+x = Select(title='X-Axis', value='subscribers', options=columns)
 x.on_change('value', update)
 
-y = Select(title='Y-Axis', value='repo', options=columns)
+y = Select(title='Y-Axis', value='sentiment', options=columns)
 y.on_change('value', update)
 
 size = Select(title='Size', value='None', options=['None'] + continuous)
