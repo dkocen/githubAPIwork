@@ -24,7 +24,9 @@ def main():
 
     # Create dataframe that has sentiment means per repo
     repos_df = df.groupby(['repo', 'language'], as_index=False)['sentiment'].mean()
+
     repos_df = repos_df.sort_values(by='repo')
+
 
     # Merge additional repo info df with repo means df
     entries = list()
