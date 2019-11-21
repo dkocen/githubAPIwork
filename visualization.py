@@ -5,9 +5,8 @@ from bokeh.models import Select
 from bokeh.palettes import Spectral5
 from bokeh.plotting import curdoc, figure
 
-df = pd.read_csv('data_cleaned_200repos_withSentiment.csv')
-df = df.groupby(['repo', 'language'], as_index=False)['sentiment'].mean()
-df = df.sort_values(by='sentiment')
+df = pd.read_csv('data_cleaned200repos_alldata.csv')
+
 df['repo'] = [repo[0:30] for repo in df['repo']]
 
 SIZES = list(range(6, 22, 3))
@@ -17,7 +16,7 @@ N_COLORS = len(COLORS)
 
 columns = sorted(df.columns)
 discrete = ['repo', 'language']
-continuous = ['sentiment']
+continuous = ['sentiment', 'creation_date', 'subscribers', 'watchers']
 
 def create_figure():
     xs = df[x.value].values
