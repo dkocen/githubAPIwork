@@ -22,7 +22,15 @@ def main():
     repo_info_df['repo'] = repo_info_df['repo'].apply(lambda x: re.sub(r'.*/', '', x)) # Clean up repo names to match df
 
     # Create dataframe that has sentiment means per repo
-    repos_df = df.groupby(['repo', 'language'], as_index=False)['sentiment'].mean()
+    repos_df = df.groupby(['repo'], as_index=False).apply(
+        lambda x: pd.Series({
+            'repo': x['repo'].iloc[0],
+            'language': x['language'].iloc[0],
+            'comment_count': x['repo'].count(),
+            'sentiment': x['sentiment'].mean()
+        })
+    )
+
 
     repos_df = repos_df.sort_values(by='repo')
 
