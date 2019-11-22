@@ -2,8 +2,10 @@ import pandas as pd
 
 from bokeh.layouts import row, column
 from bokeh.models import Select
-from bokeh.palettes import Spectral5
+from bokeh.palettes import Viridis256
 from bokeh.plotting import curdoc, figure, ColumnDataSource
+from bokeh.models import ColorBar
+from bokeh.transform import linear_cmap
 
 df = pd.read_csv('data_cleaned200repos_alldata.csv')
 del df['Unnamed: 0']
@@ -12,9 +14,7 @@ del df['creation_date']
 df['repo'] = [repo[0:30] for repo in df['repo']]
 
 SIZES = list(range(6, 22, 3))
-COLORS = Spectral5
 N_SIZES = len(SIZES)
-N_COLORS = len(COLORS)
 
 source = ColumnDataSource(df)
 
@@ -58,18 +58,18 @@ def create_figure():
 
     c = "#31AADE"
     if color.value != 'None':
-        if len(set(df[color.value])) > N_COLORS:
-            groups = pd.qcut(df[color.value].values, N_COLORS, duplicates='drop')
-        else:
-            groups = pd.Categorical(df[color.value])
-        c = [COLORS[xx] for xx in groups.codes]
+        mapper = linear_cmap(field_name=color.value, palette='Viridis256', low=min(df[color.value]), high=max(df[color.value]))
+        color_bar = ColorBar(color_mapper=mapper['transform'], title=color.value, width=8, location=(0, 0))
+        p.add_layout(color_bar, 'right')
+    else:
+        mapper = c
 
     # if x.value in discrete and y.value in continuous:
     #     p.vbar(x=xs, top=ys, width=sz, color=c)
     # elif y.value in discrete and x.value in continuous:
     #     p.hbar(y=ys, right=xs, height=sz, color=c)
     # else:
-    p.circle(x=x.value, y=y.value, source=source, color=c, size=sz, line_color="white", alpha=0.6, hover_color='white', hover_alpha=0.5)
+    p.circle(x=x.value, y=y.value, source=source, color=mapper, size=sz, line_color="white", alpha=0.6, hover_color='white', hover_alpha=0.5)
 
     return p
 

@@ -5,19 +5,18 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 def main():
     """Cleans data and runs sentiment analysis"""
-    # df = pd.read_csv('data_uncleaned200repos_50issues.csv', header=None,
-    #                   names=['language', 'repo', 'issue_id', 'comment_id', 'comment_body'])
-    #
-    # # Runs basic text cleaning function using cleantext library
-    # df['comment_body'] = df['comment_body'].apply(lambda x: clean(x, no_line_breaks=True, no_urls=True,
-    #                       no_emails=True, no_phone_numbers=True, replace_with_url=' ', replace_with_email=' ',
-    #                       replace_with_phone_number=' '))
-    #
-    # # Run sentiment analysis
-    # analyser = SentimentIntensityAnalyzer()
-    # df['sentiment'] = [analyser.polarity_scores(str(comment))['compound'] for comment in df['comment_body']]
+    df = pd.read_csv('data_uncleaned200repos_50issues.csv', header=None,
+                      names=['language', 'repo', 'issue_id', 'comment_id', 'comment_body'])
 
-    df = pd.read_csv('data_cleaned200repos_50issues.csv')
+    # Runs basic text cleaning function using cleantext library
+    df['comment_body'] = df['comment_body'].apply(lambda x: clean(x, no_line_breaks=True, no_urls=True,
+                          no_emails=True, no_phone_numbers=True, replace_with_url=' ', replace_with_email=' ',
+                          replace_with_phone_number=' '))
+
+    # Run sentiment analysis
+    analyser = SentimentIntensityAnalyzer()
+    df['sentiment'] = [analyser.polarity_scores(str(comment))['compound'] for comment in df['comment_body']]
+
     # Load in additional repo info
     repo_info_df = pd.read_csv('repo_info.csv', header=None, names=['repo', 'url', 'created', 'subscribers', 'stars'])
     repo_info_df['repo'] = repo_info_df['repo'].apply(lambda x: re.sub(r'.*/', '', x)) # Clean up repo names to match df
