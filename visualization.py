@@ -2,7 +2,6 @@ import pandas as pd
 
 from bokeh.layouts import row, column
 from bokeh.models import Select
-from bokeh.palettes import Viridis256
 from bokeh.plotting import curdoc, figure, ColumnDataSource
 from bokeh.models import ColorBar
 from bokeh.transform import linear_cmap
@@ -19,8 +18,8 @@ N_SIZES = len(SIZES)
 source = ColumnDataSource(df)
 
 columns = sorted(df.columns)
-discrete = ['repo', 'language']
-continuous = ['sentiment', 'subscribers', 'stars']
+discrete = ['language']
+continuous = ['sentiment', 'subscribers', 'stars', 'comment_count']
 
 def create_figure():
     xs = df[x.value].values
@@ -37,8 +36,8 @@ def create_figure():
 
     tooltips = [
         ("Repo", "@repo"),
-        (x_title, "$x{0,0.00}"),
-        (y_title, "$y{0,0.00}")
+        (x.value, f'@{x.value}{{0,0.00}}'),
+        (y.value, f'@{y.value}{{0,0.00}}')
     ]
 
     p = figure(plot_height=1000, plot_width=1000, tools='pan,box_zoom,hover,reset', tooltips=tooltips, **kw)
@@ -48,6 +47,15 @@ def create_figure():
     if x.value in discrete:
         p.xaxis.major_label_orientation = pd.np.pi / 4
 
+    c = "#31AADE"
+    if color.value != 'None':
+        mapper = linear_cmap(field_name=color.value, palette='Viridis256', low=min(df[color.value]), high=max(df[color.value]))
+        color_bar = ColorBar(color_mapper=mapper['transform'], title=color.value, width=8, location=(0, 0))
+        p.add_layout(color_bar, 'right')
+        tooltips.append((color.value, f'@{color.value}{{0,0.00}}'))
+    else:
+        mapper = c
+
     sz = 9
     if size.value != 'None':
         if len(set(df[size.value])) > N_SIZES:
@@ -55,14 +63,9 @@ def create_figure():
         else:
             groups = pd.Categorical(df[size.value])
         sz = [SIZES[xx] for xx in groups.codes]
-
-    c = "#31AADE"
-    if color.value != 'None':
-        mapper = linear_cmap(field_name=color.value, palette='Viridis256', low=min(df[color.value]), high=max(df[color.value]))
-        color_bar = ColorBar(color_mapper=mapper['transform'], title=color.value, width=8, location=(0, 0))
-        p.add_layout(color_bar, 'right')
-    else:
-        mapper = c
+        source.add(sz, name='size')
+        sz = 'size'
+        tooltips.append((size.value, f'@{size.value}{{0,0.00}}'))
 
     # if x.value in discrete and y.value in continuous:
     #     p.vbar(x=xs, top=ys, width=sz, color=c)
