@@ -36,14 +36,21 @@ def create_figure():
     if x.value == 'language' or y.value == 'language':
         source = source_language
         df = df_languages
-        tooltips = [("language", "@language")]
+
+        if x.value == y.value:
+            tooltips = [("language", "@language")]
+        elif x.value == 'language':
+            tooltips = [("language", "@language"),
+                        (y.value, f'@{{{y.value}}}{{0.00}}')]
+        else:
+            tooltips = [("language", "@language"),
+                        (x.value, f'@{{{x.value}}}{{0.00}}')]
     else:
         source = source_normal
         df = df_normal
-        tooltips = [("repo", "@repo")]
-
-    tooltips.append((x.value, f'@{x.value}{{0.00}}'))
-    tooltips.append((y.value, f'@{y.value}{{0.00}}'))
+        tooltips = [("repo", "@repo"),
+                    (x.value, f'@{{{x.value}}}{{0.00}}'),
+                    (y.value, f'@{{{y.value}}}{{0.00}}')]
 
     xs = df[x.value].values
     ys = df[y.value].values
@@ -64,13 +71,15 @@ def create_figure():
     c = "#31AADE"
     if color.value == 'language':
         c = factor_cmap('language', palette=Magma6, factors=df.language.unique())
-        tooltips.append((color.value, '@language'))
+        if color.value != x.value and color.value != y.value:
+            tooltips.append((color.value, '@language'))
     elif color.value != 'None':
         c = linear_cmap(field_name=color.value, palette=Magma256, low=min(df[color.value]), high=max(df[color.value]))
         formatter = BasicTickFormatter(use_scientific=False)
         color_bar = ColorBar(color_mapper=c['transform'], title=color.value,  width=8, location=(0, 0), formatter=formatter)
         p.add_layout(color_bar, 'right')
-        tooltips.append((color.value, f'@{color.value}{{0.00}}'))
+        if color.value != x.value and color.value != y.value:
+            tooltips.append((color.value, f'@{{{color.value}}}{{0.00}}'))
 
     sz = 9
     if size.value != 'None':
@@ -81,7 +90,8 @@ def create_figure():
         sz = [SIZES[xx] for xx in groups.codes]
         source.add(sz, name='size')
         sz = 'size'
-        tooltips.append((size.value, f'@{size.value}{{0.00}}'))
+        if size.value != x.value and size.value != y.value:
+            tooltips.append((size.value, f'@{{{size.value}}}{{0.00}}'))
 
     if color.value == 'language':
         p.circle(x=x.value, y=y.value, source=source, color=c, size=sz, legend_field='language', line_color="white", alpha=0.6, hover_color='white', hover_alpha=0.5)
