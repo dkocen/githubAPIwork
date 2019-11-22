@@ -17,6 +17,8 @@ def main():
     analyser = SentimentIntensityAnalyzer()
     df['sentiment'] = [analyser.polarity_scores(str(comment))['compound'] for comment in df['comment_body']]
 
+
+    #df = pd.read_csv('data_cleaned200repos_50issues.csv')
     # Load in additional repo info
     repo_info_df = pd.read_csv('repo_info.csv', header=None, names=['repo', 'url', 'created', 'subscribers', 'stars'])
     repo_info_df['repo'] = repo_info_df['repo'].apply(lambda x: re.sub(r'.*/', '', x)) # Clean up repo names to match df
@@ -26,12 +28,10 @@ def main():
         lambda x: pd.Series({
             'repo': x['repo'].iloc[0],
             'language': x['language'].iloc[0],
-            'comment_count': x['repo'].count(),
-            'sentiment': x['sentiment'].mean()
+            'comment count': x['repo'].count(),
+            'mean sentiment': x['sentiment'].mean()
         })
     )
-
-
     repos_df = repos_df.sort_values(by='repo')
 
 

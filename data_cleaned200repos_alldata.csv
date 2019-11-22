@@ -1,4 +1,4 @@
-,repo,language,comment_count,sentiment,creation_date,subscribers,stars
+,repo,language,comment count,mean sentiment,creation_date,subscribers,stars
 0,100-Days-Of-ML-Code,Python,72,0.2908,2018-07-05 09:11:43,2265,27046
 1,12306,Python,102,-0.09100392156862744,2017-05-17 12:23:40,568,17567
 2,30-seconds-of-code,JavaScript,48,0.39917291666666666,2017-11-29 17:35:03,1751,51957
