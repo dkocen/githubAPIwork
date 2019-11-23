@@ -43,6 +43,8 @@ To run the visualization:
 3. Adjust x-axis, y-axis, color, and size variables as desired
 4. Hover over any data point to get specific information about it
 
+Note that if for some reason the visualization does not run, screenshots of various states can be viewed in the screenshots folder.
+
 ### Features
 The visualization has the following features:
 - Ability to compare several different variables including comment count, repo language, mean sentiment, stars count, and subscriber count
