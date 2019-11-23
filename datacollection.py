@@ -3,6 +3,8 @@ import csv
 import time
 import codecs
 
+USERNAME = 'ENTER USERNAME'
+PASSWORD = 'ENTER PASSWORD'
 
 def check_ratelimit(remaining, resettime):
     """Checks if about to exceed ratelimit and pauses accordingly"""
@@ -33,7 +35,7 @@ def get_repo_entries(repo):
                 print('ratelimit remaining: ' + str(comment.raw_headers['x-ratelimit-remaining']))
                 entry = [repo.language, repo.name, issue.number, comment.id, comment.body] # , score['compound']
                 print(entry)
-                with codecs.open('entries.csv', 'a', encoding='utf8') as csvfile:
+                with codecs.open('data_uncleaned.csv', 'a', encoding='utf8') as csvfile:
                     writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
                     writer.writerow(entry)
             except:
@@ -41,7 +43,7 @@ def get_repo_entries(repo):
 
 
 def main():
-    g = Github('dkocen', 'n2T5%es%9s')
+    g = Github(USERNAME, PASSWORD)
     languages = ['python', 'javascript', 'C', 'java', 'haskell']
 
     for language in languages:

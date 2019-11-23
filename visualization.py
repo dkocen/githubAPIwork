@@ -5,9 +5,9 @@ from bokeh.models import Select
 from bokeh.plotting import curdoc, figure, ColumnDataSource
 from bokeh.models import ColorBar, BasicTickFormatter
 from bokeh.transform import linear_cmap, factor_cmap
-from bokeh.palettes import Magma6, Magma256
+from bokeh.palettes import Viridis6, Viridis256
 
-df_normal = pd.read_csv('data_cleaned200repos_alldata.csv')
+df_normal = pd.read_csv('data_cleaned_sentiment.csv')
 del df_normal['Unnamed: 0']
 del df_normal['creation_date']
 
@@ -70,11 +70,11 @@ def create_figure():
 
     c = "#31AADE"
     if color.value == 'language':
-        c = factor_cmap('language', palette=Magma6, factors=df.language.unique())
+        c = factor_cmap('language', palette=Viridis6, factors=df.language.unique())
         if color.value != x.value and color.value != y.value:
             tooltips.append((color.value, '@language'))
     elif color.value != 'None':
-        c = linear_cmap(field_name=color.value, palette=Magma256, low=min(df[color.value]), high=max(df[color.value]))
+        c = linear_cmap(field_name=color.value, palette=Viridis256, low=min(df[color.value]), high=max(df[color.value]))
         formatter = BasicTickFormatter(use_scientific=False)
         color_bar = ColorBar(color_mapper=c['transform'], title=color.value,  width=8, location=(0, 0), formatter=formatter)
         p.add_layout(color_bar, 'right')
@@ -106,13 +106,13 @@ def update(attr, old, new):
     layout.children[1] = create_figure()
 
 
-x = Select(title='X-Axis', value='subscribers', options=columns)
+x = Select(title='X-Axis', value='comment count', options=columns)
 x.on_change('value', update)
 
 y = Select(title='Y-Axis', value='mean sentiment', options=columns)
 y.on_change('value', update)
 
-size = Select(title='Size', value='None', options=['None'] + sorted(color_size_options))
+size = Select(title='Size', value='stars', options=['None'] + sorted(color_size_options))
 size.on_change('value', update)
 
 color = Select(title='Color', value='language', options=['None'] + sorted(['language'] + color_size_options))

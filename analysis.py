@@ -5,7 +5,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 def main():
     """Cleans data and runs sentiment analysis"""
-    df = pd.read_csv('data_uncleaned200repos_50issues.csv', header=None,
+    df = pd.read_csv('data_uncleaned.csv', header=None,
                       names=['language', 'repo', 'issue_id', 'comment_id', 'comment_body'])
 
     # Runs basic text cleaning function using cleantext library
@@ -16,12 +16,6 @@ def main():
     # Run sentiment analysis
     analyser = SentimentIntensityAnalyzer()
     df['sentiment'] = [analyser.polarity_scores(str(comment))['compound'] for comment in df['comment_body']]
-
-
-    #df = pd.read_csv('data_cleaned200repos_50issues.csv')
-    # Load in additional repo info
-    repo_info_df = pd.read_csv('repo_info.csv', header=None, names=['repo', 'url', 'created', 'subscribers', 'stars'])
-    repo_info_df['repo'] = repo_info_df['repo'].apply(lambda x: re.sub(r'.*/', '', x)) # Clean up repo names to match df
 
     # Create dataframe that has sentiment means per repo
     repos_df = df.groupby(['repo'], as_index=False).apply(
@@ -34,6 +28,9 @@ def main():
     )
     repos_df = repos_df.sort_values(by='repo')
 
+    # Load in additional repo info
+    repo_info_df = pd.read_csv('repo_info.csv', header=None, names=['repo', 'url', 'created', 'subscribers', 'stars'])
+    repo_info_df['repo'] = repo_info_df['repo'].apply(lambda x: re.sub(r'.*/', '', x)) # Clean up repo names to match df
 
     # Merge additional repo info df with repo means df
     entries = list()
@@ -44,7 +41,7 @@ def main():
     entries_df = pd.DataFrame(entries, columns=['creation_date', 'subscribers', 'stars'])
     repos_df = pd.concat([repos_df, entries_df], axis=1)
 
-    repos_df.to_csv('data_cleaned200repos_alldata.csv')
+    repos_df.to_csv('data_cleaned_sentiment.csv')
 
 
 if __name__ == '__main__':
